@@ -7,7 +7,9 @@ import psycopg
 from mcp.server.mcpserver.exceptions import ToolError
 from psycopg.rows import dict_row
 
-from pizza_mcp.order_models import Customers, Favorites, HistorySummary, OrderDetail, Orders
+from pizza_mcp.order_models import (
+    Customers, Favorites, HistorySummary, OrderDetail, Orders, StaffOrderDetail, StaffOrders,
+)
 from pizza_mcp.order_seed import STATUSES
 
 
@@ -72,6 +74,53 @@ def get_order(customer_id: str, order_id: str) -> OrderDetail:
         order = cursor.fetchone()
         if order is None:
             raise ToolError("Objednávka pro zvolený demo profil neexistuje.")
+        cursor.execute(
+            """SELECT pizza_id, pizza_name, quantity, unit_price_czk,
+                      quantity * unit_price_czk AS line_total_czk
+               FROM demo_order_item WHERE order_id = %s ORDER BY pizza_id""",
+            (order_id,),
+        )
+        items = cursor.fetchall()
+    return {**order, "items": items, "is_demo_data": True}
+
+
+def list_staff_orders(status: str | None = None, limit: int = 20) -> StaffOrders:
+    """Read orders across all fictional customers; never expose on the customer MCP."""
+    if not 1 <= limit <= 50:
+        raise ToolError("Limit musí být mezi 1 a 50.")
+    if status is not None and status not in STATUSES:
+        raise ToolError(f"Neznámý stav objednávky: {status!r}.")
+    with connect() as connection, connection.cursor() as cursor:
+        statement = (
+            "SELECT o.id, o.customer_id, c.display_name AS customer_name, "
+            "o.placed_at::text AS placed_at, o.status, o.total_czk "
+            "FROM demo_order o JOIN demo_customer c ON c.id = o.customer_id"
+        )
+        params = []
+        if status is not None:
+            statement += " WHERE o.status = %s"
+            params.append(status)
+        statement += " ORDER BY o.placed_at DESC, o.id DESC LIMIT %s"
+        params.append(limit)
+        cursor.execute(statement, params)
+        rows = cursor.fetchall()
+    return {"orders": rows, "count": len(rows), "limit": limit, "is_demo_data": True}
+
+
+def get_staff_order(order_id: str) -> StaffOrderDetail:
+    if not order_id.strip():
+        raise ToolError("Zadejte ID objednávky.")
+    with connect() as connection, connection.cursor() as cursor:
+        cursor.execute(
+            """SELECT o.id, o.customer_id, c.display_name AS customer_name,
+                      o.placed_at::text AS placed_at, o.status, o.total_czk
+               FROM demo_order o JOIN demo_customer c ON c.id = o.customer_id
+               WHERE o.id = %s""",
+            (order_id,),
+        )
+        order = cursor.fetchone()
+        if order is None:
+            raise ToolError("Objednávka neexistuje.")
         cursor.execute(
             """SELECT pizza_id, pizza_name, quantity, unit_price_czk,
                       quantity * unit_price_czk AS line_total_czk

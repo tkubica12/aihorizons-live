@@ -7,17 +7,20 @@ from pathlib import Path
 from mcp import Client
 
 from pizza_mcp.order_server import mcp as order_mcp
+from pizza_mcp.staff_server import mcp as staff_mcp
 from pizza_mcp.server import mcp
 
 
 OUTPUT = Path(__file__).resolve().parents[1] / "Docs" / "Contracts" / "pizza-catalog.mcp.json"
 ORDER_OUTPUT = OUTPUT.with_name("order-history.mcp.json")
+STAFF_OUTPUT = OUTPUT.with_name("staff-orders.mcp.json")
 
 
 async def main() -> None:
     for name, server, output in (
         ("pizza-catalog", mcp, OUTPUT),
         ("order-history", order_mcp, ORDER_OUTPUT),
+        ("staff-orders", staff_mcp, STAFF_OUTPUT),
     ):
         async with Client(server) as client:
             result = await client.list_tools()

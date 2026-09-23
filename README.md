@@ -1,5 +1,8 @@
 # aihorizons-live
 
+Průběžné české shrnutí projektu, použitých AI postupů, cloudových komponent,
+nákladů a poučení: [AI Horizons Live: průběh a poznatky](Docs/prubeh-a-poznatky.md).
+
 ## Lokální pizza chat
 
 Přihlaste se do Azure CLI (`az login`) pod účtem s přístupem k Foundry projektu

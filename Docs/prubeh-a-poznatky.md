@@ -1,0 +1,35 @@
+# AI Horizons Live: co jsme postavili a jak jsme postupovali
+
+*Průběžný zápis k 23. září 2026. Zachycuje dosavadní demo, nikoli hotový produkční systém; budeme jej doplňovat.*
+
+## Od nápadu k prvnímu demu
+
+Jako společný příklad jsme zvolili fiktivní pizzerii. V [zadání produktu](PRD.md) jsme oddělili zákaznického asistenta od plánovaného asistenta pro personál a rozdělili práci na znalosti o produktech, objednávky, rozvoz a reklamace. **Hotové jsou zatím zejména scénáře pro čtení dat a odpovídání na otázky.** Vytváření objednávek, rozvoz, reklamace ani asistent v Teams nejsou dokončené funkce.
+
+Vzniklo jednoduché české [lokální webové rozhraní](../README.md), které přes Python backend volá existujícího agenta v Microsoft Foundry. Browser nedostává přihlašovací údaje Azure; demo nemá zákaznické přihlášení a není určeno k veřejnému provozu. Zkusili jsme skutečný rozhovor v prohlížeči, včetně navazujícího dotazu a nového chatu.
+
+Pro **nestrukturované znalosti** jsme vytvořili 12 fiktivních PDF o pizzách (příběhy, původ, doporučení k vínu), uložili je do privátního Azure Blob Storage a připojili jako znalostní zdroj přes Azure AI Search / Foundry IQ. Pro **strukturovaná fakta** jsme naopak vytvořili katalog ingrediencí, receptur a deklarovaných alergenů v Azure HorizonDB (PostgreSQL) a samostatnou ukázku historie objednávek. Dva čtecí Python MCP servery běží v Azure Container Apps; Foundry agent je používá jako nástroje. Cena, dostupnost a alergeny mají vycházet ze strukturovaného záznamu, zatímco příběh a párování z PDF jsou redakční doporučení, nikoli závazná deklarace. Historie objednávek používá jen fiktivní profily, nikoli skutečné ověření zákazníka. Podrobnosti a kontrakty jsou v [architektuře](architecture.md), [katalogu](catalog-demo.md) a [historii objednávek](order-history-demo.md).
+
+## Jak jsme pracovali s AI a kódovacím agentem
+
+- Začali jsme cílem a ověřitelnými scénáři v PRD, potom jsme práci dělili na malé milníky: nejprve chat a data, poté MCP a napojení do Foundry. Asistent nemá „domýšlet“ chybějící fakta ani tvrdit, že proběhla akce, kterou systém neprovedl.
+- Kódovacímu agentovi jsme dali stručná pravidla v [`AGENTS.md`](../AGENTS.md): Python s `uv`, Terraform s AzAPI, stručná dokumentace a rozhodnutí v ADR, české odpovědi zákazníkům. Model volíme podle obtížnosti a ceny: běžná implementace, náročnější rámování, levnější rešerše či nezávislá oponentura nejsou stejná práce.
+- Samostatné Copilot sessions jsme použili pro produkt, PDF, web, backend, infrastrukturu a Foundry definice. Při práci ve **sdíleném checkoutu a nad jedním lokálním Terraform state** jsme museli domlouvat vlastnictví souborů, pořadí seedů, image buildů a selektivních commitů; souběžný `terraform apply` nebo hromadný commit rozpracovaných cizích souborů by byl riskantní. Po opravě kódu bylo nutné znovu sestavit verzovaný image, nikoli nasadit starší sestavení.
+- Kromě automatických testů jsme ověřovali skutečná MCP volání nad běžícími službami, počet záznamů v databázi a ruční průchod v Canvasu. U Foundry jsme kontrolovali události volání nástrojů a citace PDF: věrohodně znějící odpověď sama nedokazuje, že agent skutečně použil správný zdroj.
+- Ve Foundry jsme zkusili datovou sadu, vlastní evaluátory a evaluace. Pro hlas značky vznikla **ordinální rubrika 1–5** hodnotící sarkastickou a vtipnou osobnost; styl je jiná metrika než faktická správnost a nemá odměňovat urážky ani nezodpovědný humor. Definice agentů, prompty, JSONL data a evaluátory uchováváme zvlášť ve [`foundry/`](../foundry/README.md). Terraform spravuje Azure infrastrukturu, zatímco Foundry data plane má explicitní snapshot, kontrolu rozdílů a obnovu bez automatického spouštění placených evaluací.
+
+## Co nás cestou naučily problémy
+
+Azure Policy nejprve zablokovala přístup ke storage; bylo nutné zjistit rozdíl mezi požadovaným tagem a tagem skutečně rozpoznaným politikou, a až poté s vědomím dočasné výjimky nahrát PDF. U HorizonDB zase nebyla dostupná funkce privátního endpointu. Připravili jsme užší variantu se statickou odchozí IP a vyčíslili její cenu, ale **nenasadili ji**. Pro čistě fiktivní demo bylo výslovně odsouhlaseno dočasné pravidlo „Allow Azure Services“: nejde o omezení na náš tenant, nýbrž o síťový přístup ze všech Azure subscriptions. Databázová hesla, TLS, čtecí role a oddělené tokeny MCP zůstávají nutné; před prací se skutečnými daty je nutné výjimku odstranit a ověřit privátní spojení. Viz [infrastruktura](../infra/README.md).
+
+Napojení Foundry IQ na Search vyžadovalo oprávnění **Search Index Data Reader pro identitu projektu**, nikoli jen pro člověka, a správnou hlavičku `Accept` pro MCP. Jiný problém vypadal jako chyba odpovědi agenta: PDF o Margheritě v úložišti bylo, ale první indexace čtyř PDF selhala při nedostupném modelovém deploymentu. Přímá kontrola indexu a logu indexeru odlišila chybějící dokument v indexu od špatného dotazu; opětovná indexace v tomto šetření **neproběhla**. Pravidlo pro další práci: kontrolovat zdroj, index, oprávnění, protokol i skutečný výstup každého kroku zvlášť.
+
+Ručně vytvořené Azure zdroje jsme postupně popsali v Terraformu/AzAPI, **importovali** do stávajícího state a ověřili plán bez nečekaných změn; import není totéž co `apply`. Foundry definice a Search data plane se tím automaticky nereprodukují. Některé přihlašovací údaje API při čtení skrývá, proto snapshot v repozitáři není kompletní záloha prostředí.
+
+## Cena a další krok
+
+Porovnali jsme aktuální infrastrukturu s úspornějším scénářem pro zhruba 50 lidí. Orientační tehdejší základ nepřetržitého provozu vyšel na **856 USD/měsíc** bez AI tokenů a části proměnné spotřeby, hlavně kvůli HorizonDB a vyhrazenému Azure AI Search. Modelové varianty s PostgreSQL Flexible Server, menšími Container Apps a Basic či serverless Search vyšly při zvolených předpokladech přibližně na **293–389 USD/měsíc**; nejsou to faktury ani příslib produkční dostupnosti. Serverless Search byl posuzován jako preview bez SLA a Burstable PostgreSQL bez HA. Počet lidí sám cenu neurčuje: musíme změřit dotazy, souběh, indexování, tokeny a dobu skutečné aktivity. Sazby i dostupnost služeb je při další iteraci nutné přepočítat.
+
+Další fáze jsou zápis objednávek, provoz personálu, rozvoz a reklamace podle PRD; předtím je třeba dořešit soukromé připojení databáze, úplnost indexu PDF a bezpečnost potřebnou pro případné nasazení mimo lokální demo.
+
+**Podklady a rozsah:** shrnutí vychází z projektových Copilot sessions AI Horizons Live z 23. 9. 2026 (prohlédnutá historie a průběžná shrnutí), místní historie Git (11 commitů k tomuto zápisu) a dokumentů [`Docs/`](./), [`infra/`](../infra/README.md) a [`foundry/`](../foundry/README.md). Jde o výběr hlavních postupů a poučení, nikoli přepis všech konverzací; provozní tvrzení popisují stav zaznamenaný v uvedených podkladech, ne novou živou kontrolu Azure.

@@ -1,0 +1,154 @@
+{
+  "name": "staff-orders",
+  "version": "0.1.0",
+  "transport": "streamable-http",
+  "path": "/mcp",
+  "tools": [
+    {
+      "name": "list_staff_orders",
+      "description": "Vypsat objednávky všech fiktivních zákazníků, případně podle stavu.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "limit": {
+            "default": 20,
+            "title": "Limit",
+            "type": "integer"
+          }
+        },
+        "title": "list_staff_ordersArguments"
+      },
+      "outputSchema": {
+        "properties": {
+          "orders": {
+            "items": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "type": "object"
+            },
+            "title": "Orders",
+            "type": "array"
+          },
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "is_demo_data": {
+            "title": "Is Demo Data",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "orders",
+          "count",
+          "limit",
+          "is_demo_data"
+        ],
+        "title": "StaffOrders",
+        "type": "object"
+      }
+    },
+    {
+      "name": "get_staff_order",
+      "description": "Přečíst objednávku libovolného fiktivního zákazníka podle ID.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "order_id": {
+            "title": "Order Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "order_id"
+        ],
+        "title": "get_staff_orderArguments"
+      },
+      "outputSchema": {
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "placed_at": {
+            "title": "Placed At",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "total_czk": {
+            "title": "Total Czk",
+            "type": "integer"
+          },
+          "customer_id": {
+            "title": "Customer Id",
+            "type": "string"
+          },
+          "customer_name": {
+            "title": "Customer Name",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "additionalProperties": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "integer"
+                  }
+                ]
+              },
+              "type": "object"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "is_demo_data": {
+            "title": "Is Demo Data",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "placed_at",
+          "status",
+          "total_czk",
+          "customer_id",
+          "customer_name",
+          "items",
+          "is_demo_data"
+        ],
+        "title": "StaffOrderDetail",
+        "type": "object"
+      }
+    }
+  ]
+}

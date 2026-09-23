@@ -53,3 +53,28 @@ orders. See [ADR-0003](ADR/0003-order-history-mcp.md), the
 [`order-history.mcp.json`](Contracts/order-history.mcp.json) contract and
 [setup notes](order-history-demo.md). No transactional ordering or dispatch
 capability is implemented by this second MCP.
+
+## Coded staff agent and external demo
+
+`pizza_mcp.staff_server` runs as a third, read-only MCP process in Container Apps.
+Unlike the customer-scoped order server, it can query all fictional customer
+orders, but it has a **different bearer token and connection** and uses the same
+database SELECT-only role. The `pizza-staff-tools` Foundry toolbox copies the
+catalog and knowledge-base tool references and adds only this staff MCP. The
+customer toolbox remains unchanged.
+
+`pizza_mcp.staff_agent` is a Python LangGraph ReAct graph in a Foundry **hosted**
+container, serving the Responses 2.0 protocol. It calls the staff toolbox's
+consumer MCP endpoint using its Foundry identity, and the existing Foundry
+model using Entra tokens. The Foundry platform owns ingress, agent identity,
+conversation storage and Application Insights connection. The agent currently
+has no Teams adapter and no state-changing tools.
+
+`pizza_mcp.hello_agent` is a separate LangGraph graph in Azure Container Apps,
+not a Foundry hosted agent. It exposes a token-protected `/chat` demo route,
+exports OpenTelemetry traces to the Foundry project's Application Insights,
+and emits `gen_ai.agent.id=pizza-hello-external`. An **external** Foundry agent
+record associates these traces with its name. Foundry registration does not
+host, authenticate, or proxy this Container App.
+
+See [ADR-0005](ADR/0005-coded-agents.md) and [deployment notes](agents-demo.md).

@@ -29,6 +29,13 @@ class Orders(TypedDict):
     is_demo_data: bool
 
 
+class StaffOrders(TypedDict):
+    orders: list[dict[str, str | int]]
+    count: int
+    limit: int
+    is_demo_data: bool
+
+
 class OrderItem(TypedDict):
     pizza_id: str
     pizza_name: str
@@ -40,6 +47,13 @@ class OrderItem(TypedDict):
 class OrderDetail(OrderSummary):
     customer_id: str
     items: list[OrderItem]
+    is_demo_data: bool
+
+
+class StaffOrderDetail(OrderSummary):
+    customer_id: str
+    customer_name: str
+    items: list[dict[str, str | int]]
     is_demo_data: bool
 
 

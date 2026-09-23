@@ -11,6 +11,28 @@
     }
   },
   {
+    "name": "WorkIQMail",
+    "type": "RemoteTool",
+    "target": "https://agent365.svc.cloud.microsoft/agents/servers/mcp_MailTools",
+    "is_default": false,
+    "credential_type": "UserEntraToken",
+    "metadata": {
+      "toolEntityId": "azureml://location/eastus/apiCenter/registry-prod-bl/type/tools/objectId/microsoft-outlook-mail-mcp-frontier/version/1",
+      "type": "catalog_MCP"
+    }
+  },
+  {
+    "name": "WorkIQTeams",
+    "type": "RemoteTool",
+    "target": "https://agent365.svc.cloud.microsoft/agents/servers/mcp_TeamsServer",
+    "is_default": false,
+    "credential_type": "UserEntraToken",
+    "metadata": {
+      "toolEntityId": "azureml://location/eastus/apiCenter/registry-prod-bl/type/tools/objectId/microsoft-teams-mcp-frontier/version/1",
+      "type": "catalog_MCP"
+    }
+  },
+  {
     "name": "aihorizonsresourceapp0mtcxs",
     "type": "AppInsights",
     "target": "/subscriptions/673af34d-6b28-41dc-bc7b-f507418045e6/resourceGroups/RG-AI-Horizons/providers/microsoft.insights/components/aihorizons-resource-appinsights",
@@ -63,6 +85,16 @@
     "type": "RemoteTool",
     "target": "https://pizza-order-mcp.salmonwater-e074ca76.swedencentral.azurecontainerapps.io/mcp",
     "is_default": true,
+    "credential_type": "CustomKeys",
+    "metadata": {
+      "type": "custom_MCP"
+    }
+  },
+  {
+    "name": "pizza-staff-orders-mcp",
+    "type": "RemoteTool",
+    "target": "https://pizza-staff-order-mcp.salmonwater-e074ca76.swedencentral.azurecontainerapps.io/mcp",
+    "is_default": false,
     "credential_type": "CustomKeys",
     "metadata": {
       "type": "custom_MCP"

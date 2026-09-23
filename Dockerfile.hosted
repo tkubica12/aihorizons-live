@@ -1,0 +1,11 @@
+FROM python:3.13-slim
+
+WORKDIR /app
+RUN python -m pip install --no-cache-dir --index-url https://packagefeedproxy.microsoft.io/pypi/simple/ "uv==0.12.9"
+COPY pyproject.toml uv.lock ./
+COPY src ./src
+RUN uv sync --frozen --no-dev --extra agents --no-editable
+
+ENV PATH="/app/.venv/bin:$PATH"
+EXPOSE 8088
+CMD ["python", "-m", "pizza_mcp.staff_agent"]

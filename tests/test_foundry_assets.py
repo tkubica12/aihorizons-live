@@ -16,15 +16,20 @@ spec.loader.exec_module(assets)
 def test_exported_snapshot_is_valid_and_keeps_prompts_separate():
     manifest = assets.validate()
     assert len(manifest["agents"]) == len(manifest["datasets"]) == len(manifest["evaluators"]) == 1
-    assert len(manifest["toolboxes"]) == len(manifest["memory_stores"]) == 1
-    assert len(manifest["connections"]) == 6
+    assert len(manifest["toolboxes"]) == 2
+    assert len(manifest["memory_stores"]) == 1
+    assert "pizza-staff-orders-mcp" in manifest["connections"]
     agent = assets.ROOT / "agents" / manifest["agents"][0]["name"] / manifest["agents"][0]["version"]
     evaluator = assets.ROOT / "evaluators" / manifest["evaluators"][0]["name"] / manifest["evaluators"][0]["version"]
     assert "instructions" not in assets.load(agent / "definition.json")
     assert "prompt_text" not in assets.load(evaluator / "evaluator.json")["definition"]
-    toolbox = assets.ROOT / "toolboxes" / manifest["toolboxes"][0]["name"] / "1" / "toolbox.json"
+    toolbox = assets.ROOT / "toolboxes" / "sada-nastroju-pro-ai-borce" / "1" / "toolbox.json"
+    staff_toolbox = assets.ROOT / "toolboxes" / "pizza-staff-tools" / "1" / "toolbox.json"
     memory = assets.ROOT / "memory_stores" / manifest["memory_stores"][0]["name"] / "memory_store.json"
     assert len(assets.load(toolbox)["tools"]) == 3
+    assert {tool.get("server_label") for tool in assets.load(staff_toolbox)["tools"]} == {
+        None, "kb-kb-pizza-mtcxs", "pizza-catalog-mcp", "pizza_staff_orders",
+    }
     assert assets.load(memory)["definition"]["kind"] == "default"
     rows = (assets.ROOT / "datasets" / "pizza_customers" / "1.0" / "data.jsonl").read_text(
         encoding="utf-8"

@@ -5,6 +5,10 @@ directory snapshots the **project data plane** from `aihorizons`:
 
 - `agents/<name>/<version>/definition.json` and `instructions.txt` preserve
   every saved prompt-agent version. `manifest.json` identifies the current one.
+  Coded hosted/external agents `pizza-staff-langgraph` and
+  `pizza-hello-external` are deployed by `scripts/deploy_agents.py`, not restored
+  from prompt-agent definitions here; their staff toolbox and credential-free
+  connection metadata are included in this snapshot.
 - `datasets/<name>/<version>/data.jsonl` is the exact uploaded JSONL content;
   `dataset.json` records its SHA-256.
 - `evaluators/<name>/<version>/evaluator.json` and `prompt.txt` preserve custom
@@ -17,7 +21,7 @@ directory snapshots the **project data plane** from `aihorizons`:
   default version.
 - `memory_stores/<name>/memory_store.json` stores the memory-store definition,
   options and prompt, **not** per-user stored memories.
-- `connections.json` inventories six project connections (including the MCP
+- `connections.json` inventories project connections (including the MCP
   services, Search knowledge base and Foundry MCP Server), their targets and
   authentication *types*. Credentials and sensitive service metadata are
   deliberately excluded; this is not a connection restoration recipe.

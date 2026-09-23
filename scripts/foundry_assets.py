@@ -207,6 +207,11 @@ def snapshot(project: AIProjectClient, endpoint: str, overwrite: bool) -> None:
         versions = list(project.agents.list_versions(name))
         if not versions:
             raise ValueError(f"Agent {name} has no saved versions")
+        if name in {"pizza-staff-langgraph", "pizza-hello-external"}:
+            expected_kind = "hosted" if name == "pizza-staff-langgraph" else "external"
+            if any(version.definition.as_dict().get("kind") != expected_kind for version in versions):
+                raise ValueError(f"Unexpected coded agent kind: {name}")
+            continue
         latest = max(versions, key=lambda v: int(v.version))
         agent_versions[name] = latest.version
         directory = Path("agents") / name

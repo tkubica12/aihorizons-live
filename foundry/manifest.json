@@ -3,7 +3,7 @@
   "agents": [
     {
       "name": "nejlepsi-ai-pizza-na-pankraci",
-      "version": "15"
+      "version": "17"
     }
   ],
   "datasets": [
@@ -25,6 +25,10 @@
   ],
   "toolboxes": [
     {
+      "name": "pizza-staff-tools",
+      "version": "1"
+    },
+    {
       "name": "sada-nastroju-pro-ai-borce",
       "version": "1"
     }
@@ -36,10 +40,13 @@
   ],
   "connections": [
     "FoundryMCPServerpreview",
+    "WorkIQMail",
+    "WorkIQTeams",
     "aihorizonsresourceapp0mtcxs",
     "aihorizonssrchswdh0mtcxs",
     "kb-kb-pizza-mtcxs",
     "pizza-catalog-mcp",
-    "pizza-orders-mcp"
+    "pizza-orders-mcp",
+    "pizza-staff-orders-mcp"
   ]
 }

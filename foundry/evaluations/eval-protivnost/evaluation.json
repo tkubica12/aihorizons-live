@@ -60,7 +60,7 @@
     "target": {
       "type": "azure_ai_agent",
       "name": "nejlepsi-ai-pizza-na-pankraci",
-      "version": "15",
+      "version": "17",
       "tool_descriptions": []
     },
     "item_generation_params": {

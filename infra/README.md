@@ -33,6 +33,64 @@ account network settings and managed identities are reflected in Terraform;
 each resource has `prevent_destroy`. Before changing a property in the portal,
 reconcile its value here and check `terraform plan` for unexpected drift.
 
+The 2026-09-23 resource-group inventory also found a West Europe AI Search
+service, Log Analytics workspace, Application Insights component, smart
+detector alert, two NSGs attached to the existing subnets, and a Search
+identity's Storage Blob Data Reader assignment. These, the Foundry-to-Search
+AAD connection, three additional model deployments (`gpt-5.2`, `gpt-5.4`,
+`text-embedding-3-large`), and the custom `Guardrails402` RAI policy are
+declared and imported into the same local state. See
+`knowledge_infrastructure.tf`, `foundry.tf`, and `guardrails-402.json`.
+The policy JSON contains writable filters only; the API also returns
+read-only `action` and `type` fields. The Search service is **West Europe**,
+not `var.location`; Shared Key authentication on Search is disabled. The
+Search managed identity, not the Foundry account or project identity, has
+Storage Blob Data Reader on the document storage account. The live smart
+detector rule references an action group outside this resource group; that
+action group is not managed here. Import made no Azure changes, and the
+subsequent full `terraform plan` reported **no changes**. Do not run
+`terraform apply` as part of an inventory/import.
+
+The Foundry project's system-assigned identity additionally received an
+existing **Search Index Data Reader** role at the Search service scope after
+the inventory. `foundry_search_index_reader` adopts its original assignment
+ID (`e5931faa-a4ec-477d-a9bd-b8e9c67c8ef7`); it does not create a second
+assignment or grant broader Search permissions.
+`imported_role_assignments.tf` also adopts the three existing operator roles
+(Foundry User on the resource group, Search Service Contributor and Search
+Index Data Contributor on Search) and the Foundry project's self-assigned
+Foundry User role. All four retain their original assignment IDs; the two
+pre-existing MCP role assignments remain managed in `identity.tf`. Human
+Search roles do not grant access to the project's managed identity.
+
+Some observed objects deliberately remain outside this state:
+
+- Search data-plane has `ks-blob-pizzas` (an Azure Blob knowledge source) and
+  generated `ks-blob-pizzas-index`, `-datasource`, `-indexer`, and `-skillset`;
+  the Search `knowledgebases` collection was empty. Its knowledge-source
+  read API redacts the storage and model API keys, so a read-only export
+  cannot faithfully reconstruct the source or safely import those credentials
+  into Terraform. Keep their definitions/credentials in a separate data-plane
+  and secret-management workflow, not hard-coded in this repo.
+- The Foundry account also exposes an App Insights `ApiKey` connection and
+  two MCP `CustomKeys` connections (`pizza-catalog-mcp`,
+  `pizza-orders-mcp`) with credentials omitted from GET. Their account-level
+  connection records were not imported: the current response cannot
+  reconstruct their authentication. The project's connection listing exposes
+  the same four connection names; it is not four extra independent assets.
+- Azure has three built-in `Microsoft.*` RAI policies, unlike the imported
+  user-managed `Guardrails402`; the built-in policies are service-owned and
+  not managed in this state.
+- Both imported NSGs are attached to their subnets in Azure and currently
+  contain no custom security rules. The existing AzAPI subnet declarations
+  omit the `networkSecurityGroup` property; adding the live references to
+  their Terraform bodies would plan **two subnet updates** despite the live
+  associations already existing. To honor this inventory's no-modification
+  constraint, the references were not added. Review the live NSG associations
+  before any future subnet update and reconcile them in a separately approved
+  change. No resource diagnostic settings or management locks were found in
+  the resource group during this inventory.
+
 HorizonDB `hdb-aihorizons` (PostgreSQL 17, two vCores, one replica) uses the
 ephemeral `horizondb_admin_password` Terraform variable and the provider's
 write-only `sensitive_body`. For each plan/apply, load the value from the

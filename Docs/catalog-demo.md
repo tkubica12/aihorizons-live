@@ -59,8 +59,11 @@ five real tool calls against seeded records.
 The project `aihorizons` has two distinct CustomKeys project connections:
 `pizza-catalog-mcp` for the catalog and `pizza-orders-mcp` for the order
 history. Each stores an `Authorization: Bearer <token>` header for its own
-Container App `/mcp` endpoint. The shared demo tokens are copied from Key
-Vault `kvaihorizons673af34d` at registration time; changing either Key Vault
+Container App `/mcp` endpoint. Both connections use the `RemoteTool` category
+and `custom_MCP` metadata required for visibility under **Build > Tools** in
+the Foundry portal; refresh the page after registration. The shared demo tokens
+are copied from Key Vault `kvaihorizons673af34d` at registration time;
+changing either Key Vault
 secret requires updating its Foundry connection as well. Foundry project
 members with connection access can retrieve shared credentials. This is not
 customer authentication: the order tools only use selectable fictional demo
@@ -71,13 +74,25 @@ With Azure CLI access to the project and Key Vault secrets, run
 missing connections without printing secrets, checks existing connection
 credentials against Key Vault and adds both read-only MCP tools to a new
 version of `nejlepsi-ai-pizza-na-pankraci` while preserving its existing tools
-and instructions. The active snapshot in `foundry/` records agent version 8.
+and instructions. The active snapshot in `foundry/` records agent version 15.
 The snapshot does **not** store connection credentials: provision the
 connections before restoring an agent in another project. In the Foundry
 portal, test the agent with “Jaké máte dostupné pizzy a kolik stojí?” and
 “Kolik objednávek má demo-anna a kolik utratila?”; inspect its `mcp_call`
 events rather than treating a plausible answer as evidence of MCP access.
 Approval is disabled for these read-only demo calls.
+
+The agent also uses the separate Foundry IQ connection `kb-kb-pizza-mtcxs`
+for unstructured PDF knowledge in Azure AI Search. It authenticates with the
+Foundry **project** system-assigned managed identity, which needs **Search
+Index Data Reader** on the Search service. That role is managed in
+`infra/knowledge_infrastructure.tf`. The agent's knowledge-base MCP tool must
+send `Accept: application/json, text/event-stream`; without both media types
+the Search MCP endpoint rejects tool enumeration with HTTP 406, even after
+RBAC is fixed. For a retrieval check, ask about the history of Pizza Fritta
+Napoletana and confirm a completed `knowledge_base_retrieve` call and a
+PDF-backed citation. The structured pizza and order MCP services remain
+independent of this knowledge base.
 
 Open the project Canvas **Pizza catalog / MCP** for a manual test. Enter the
 Container App URL and token (the token is held only in the open panel), click

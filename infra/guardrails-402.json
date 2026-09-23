@@ -1,0 +1,32 @@
+{
+  "basePolicyName": "Microsoft.DefaultV2",
+  "mode": "Default",
+  "contentFilters": [
+    {"blocking":true,"enabled":true,"name":"Hate","severityThreshold":"Medium","source":"Prompt"},
+    {"blocking":true,"enabled":true,"name":"Hate","severityThreshold":"Medium","source":"Completion"},
+    {"blocking":true,"enabled":true,"name":"Sexual","severityThreshold":"Medium","source":"Prompt"},
+    {"blocking":true,"enabled":true,"name":"Sexual","severityThreshold":"Medium","source":"Completion"},
+    {"blocking":true,"enabled":true,"name":"Selfharm","severityThreshold":"Medium","source":"Prompt"},
+    {"blocking":true,"enabled":true,"name":"Selfharm","severityThreshold":"Medium","source":"Completion"},
+    {"blocking":true,"enabled":true,"name":"Violence","severityThreshold":"Medium","source":"Prompt"},
+    {"blocking":true,"enabled":true,"name":"Violence","severityThreshold":"Medium","source":"Completion"},
+    {"blocking":true,"enabled":true,"name":"Jailbreak","source":"Prompt"},
+    {"blocking":true,"enabled":true,"name":"Protected Material Text","source":"Completion"},
+    {"blocking":true,"enabled":true,"name":"Protected Material Code","source":"Completion"},
+    {"blocking":false,"enabled":true,"name":"Indirect Attack","source":"Prompt"},
+    {"blocking":false,"enabled":true,"name":"Indirect Attack","source":"PostToolCall"},
+    {"blocking":true,"enabled":true,"name":"Email Protection","source":"Prompt"},
+    {"blocking":true,"enabled":true,"name":"Email Protection","source":"PreToolCall"},
+    {"blocking":true,"enabled":true,"name":"Email Protection","source":"PostToolCall"},
+    {"blocking":true,"enabled":true,"name":"Email Protection","source":"Completion"},
+    {"blocking":false,"enabled":false,"name":"Indirect Attack Spotlighting","source":"Prompt"},
+    {"blocking":true,"enabled":true,"name":"purview","source":"Prompt"},
+    {"blocking":true,"enabled":true,"name":"purview","source":"Completion"},
+    {"blocking":true,"enabled":true,"name":"DefenderForAI","source":"Prompt"},
+    {"blocking":true,"enabled":true,"name":"DefenderForAI","source":"Completion"},
+    {"blocking":true,"enabled":true,"name":"DefenderForAI","source":"PostRun"},
+    {"blocking":true,"enabled":true,"name":"DefenderForAI","source":"PostToolCall"},
+    {"blocking":true,"enabled":true,"name":"DefenderForAI","source":"PreRun"},
+    {"blocking":true,"enabled":true,"name":"DefenderForAI","source":"PreToolCall"}
+  ]
+}

@@ -38,7 +38,7 @@ def secret(name: str) -> str:
 
 
 def arm_request(credential: AzureCliCredential, method: str, name: str, body: dict | None = None) -> dict:
-    url = f"{ARM_PROJECT}/connections/{name}?api-version=2025-09-01"
+    url = f"{ARM_PROJECT}/connections/{name}?api-version=2025-10-01-preview"
     data = json.dumps(body).encode("utf-8") if body is not None else None
     request = Request(
         url, data=data, method=method,
@@ -76,18 +76,24 @@ def main() -> None:
             saved = project.connections.get(name, include_credentials=True).credentials.as_dict()
             if saved.get("authorization") != "Bearer " + secret(secret_name):
                 raise ValueError(f"Existing connection {name} has an outdated Authorization credential")
-        else:
+            if props["category"] not in ("CustomKeys", "RemoteTool") or props.get("metadata") not in (
+                {}, {"type": "custom_MCP"},
+            ):
+                raise ValueError(f"Existing connection {name} has unexpected category or metadata")
+        if not existing or props["category"] != "RemoteTool" or props.get("metadata") != {"type": "custom_MCP"}:
             created = arm_request(credential, "PUT", name, {
                 "properties": {
-                    "category": "CustomKeys",
+                    "category": "RemoteTool",
                     "authType": "CustomKeys",
                     "target": url,
                     "credentials": {"keys": {"Authorization": "Bearer " + secret(secret_name)}},
+                    "metadata": {"type": "custom_MCP"},
                 },
             })
-            if created["properties"]["target"] != url:
-                raise RuntimeError(f"Connection {name} target was not saved")
-            print(f"Created {name}")
+            actual = created["properties"]
+            if actual["target"] != url or actual["category"] != "RemoteTool":
+                raise RuntimeError(f"Remote MCP connection {name} was not saved")
+            print(f"{'Updated' if existing else 'Created'} {name} as RemoteTool")
 
         if any(tool.get("server_label") == label for tool in tools):
             if not any(

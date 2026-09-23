@@ -1,0 +1,15 @@
+# Terraform local working data and state
+**/.terraform/
+**/*.tfstate
+**/*.tfstate.*
+**/*.tfplan
+**/crash.log
+**/crash.*.log
+**/*.tfvars
+!**/*.tfvars.example
+
+# Local Python environments and generated caches
+.venv/
+.pytest_cache/
+**/__pycache__/
+*.py[cod]

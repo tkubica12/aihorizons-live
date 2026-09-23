@@ -1,0 +1,15 @@
+{
+  "customers": [
+    {"id": "demo-anna", "display_name": "Anna (demo)"},
+    {"id": "demo-boris", "display_name": "Boris (demo)"},
+    {"id": "demo-cyril", "display_name": "Cyril (demo)"}
+  ],
+  "orders": [
+    {"id": "ORD-001", "customer_id": "demo-anna", "placed_at": "2026-08-05T12:00:00Z", "status": "delivered", "items": [{"pizza_id": "01-margherita", "quantity": 2}, {"pizza_id": "03-napoli", "quantity": 1}]},
+    {"id": "ORD-002", "customer_id": "demo-boris", "placed_at": "2026-08-06T18:30:00Z", "status": "delivered", "items": [{"pizza_id": "01-margherita", "quantity": 1}]},
+    {"id": "ORD-003", "customer_id": "demo-anna", "placed_at": "2026-08-15T19:15:00Z", "status": "delivered", "items": [{"pizza_id": "01-margherita", "quantity": 1}]},
+    {"id": "ORD-004", "customer_id": "demo-cyril", "placed_at": "2026-08-20T13:00:00Z", "status": "cancelled", "items": [{"pizza_id": "03-napoli", "quantity": 1}]},
+    {"id": "ORD-005", "customer_id": "demo-anna", "placed_at": "2026-09-01T17:20:00Z", "status": "delivered", "items": [{"pizza_id": "03-napoli", "quantity": 2}]},
+    {"id": "ORD-006", "customer_id": "demo-boris", "placed_at": "2026-09-03T10:10:00Z", "status": "preparing", "items": [{"pizza_id": "01-margherita", "quantity": 3}]}
+  ]
+}

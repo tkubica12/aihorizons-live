@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pizza catalog / MCP</title>
+  <link rel="stylesheet" href="/panel.css">
+  <script type="module" src="/panel.js"></script>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Pizza katalog <span>/ MCP</span></h1>
+      <p>Ručně ověřte dostupnost služby, data a odpovědi čtecích nástrojů. Jde o fiktivní receptury a alergenní údaje.</p>
+    </header>
+    <section class="connection">
+      <label>Adresa Azure Container App (nebo lokální test)
+        <input id="base-url" type="url" placeholder="https://moje-aplikace.azurecontainerapps.io" autocomplete="off">
+      </label>
+      <label>Demo bearer token (pouze v paměti této záložky)
+        <input id="token" type="password" autocomplete="off" placeholder="Vložte token">
+      </label>
+      <div class="buttons">
+        <button id="health">Ověřit službu</button>
+        <button id="discover">Načíst MCP nástroje</button>
+        <span id="status" role="status" aria-live="polite">Připraveno</span>
+      </div>
+    </section>
+    <section class="grid">
+      <div class="panel">
+        <h2>Katalog</h2>
+        <div class="filters">
+          <label>Kategorie
+            <select id="category">
+              <option value="">Všechny</option><option value="klasika">Klasika</option>
+              <option value="maso">Maso</option><option value="syry">Sýry</option>
+              <option value="ryby">Ryby</option><option value="zelenina">Zelenina</option>
+              <option value="specialita">Specialita</option>
+            </select>
+          </label>
+          <label>Jméno <input id="query" placeholder="Např. Margherita"></label>
+          <label><input id="available" type="checkbox" checked> Jen dostupné</label>
+          <button id="search">Vyhledat pizzy</button>
+        </div>
+        <div id="pizzas" aria-live="polite"></div>
+        <div class="buttons">
+          <button id="ingredients">Prohlédnout suroviny</button>
+          <button id="allergens">Prohlédnout alergeny</button>
+        </div>
+        <div id="reference"></div>
+      </div>
+      <div class="panel">
+        <h2>Detail / alergeny</h2>
+        <label>Pizza ID <input id="pizza-id" placeholder="01-margherita"></label>
+        <div class="buttons">
+          <button id="detail">Zobrazit recept</button>
+          <label>Alergen č. <input id="allergen" type="number" min="1" max="14" value="7"></label>
+          <button id="check">Ověřit alergen</button>
+        </div>
+        <div id="detail-result"></div>
+      </div>
+    </section>
+    <section class="panel">
+      <h2>Test MCP protokolu</h2>
+      <p>Zvolte nástroj a pošlete JSON argumenty; odpověď níže ukazuje požadavek i syrový výsledek.</p>
+      <div class="buttons">
+        <label>Nástroj <select id="tool">
+          <option>list_pizzas</option><option>get_pizza</option><option>check_allergen</option>
+          <option>list_ingredients</option><option>list_allergens</option>
+        </select></label>
+        <label>Argumenty JSON <textarea id="args" rows="3">{}</textarea></label>
+        <button id="call">Zavolat nástroj</button>
+      </div>
+      <pre id="raw" aria-live="polite">Zatím bez požadavku.</pre>
+    </section>
+  </main>
+</body>
+</html>

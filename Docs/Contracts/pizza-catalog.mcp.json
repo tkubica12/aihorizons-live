@@ -1,0 +1,526 @@
+{
+  "name": "pizza-catalog",
+  "version": "0.1.0",
+  "transport": "streamable-http",
+  "path": "/mcp",
+  "tools": [
+    {
+      "name": "list_pizzas",
+      "description": "Vypsat pizzy; filtrovat přesnou kategorií, částí názvu a dostupností.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "category": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Category"
+          },
+          "query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Query"
+          },
+          "available_only": {
+            "default": true,
+            "title": "Available Only",
+            "type": "boolean"
+          },
+          "limit": {
+            "default": 20,
+            "title": "Limit",
+            "type": "integer"
+          }
+        },
+        "title": "list_pizzasArguments"
+      },
+      "outputSchema": {
+        "$defs": {
+          "PizzaSummary": {
+            "properties": {
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "name": {
+                "title": "Name",
+                "type": "string"
+              },
+              "category": {
+                "title": "Category",
+                "type": "string"
+              },
+              "description": {
+                "title": "Description",
+                "type": "string"
+              },
+              "price_czk": {
+                "title": "Price Czk",
+                "type": "integer"
+              },
+              "available": {
+                "title": "Available",
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "category",
+              "description",
+              "price_czk",
+              "available"
+            ],
+            "title": "PizzaSummary",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "pizzas": {
+            "items": {
+              "$ref": "#/$defs/PizzaSummary"
+            },
+            "title": "Pizzas",
+            "type": "array"
+          },
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "is_demo_data": {
+            "title": "Is Demo Data",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "pizzas",
+          "count",
+          "limit",
+          "source",
+          "is_demo_data"
+        ],
+        "title": "PizzaList",
+        "type": "object"
+      }
+    },
+    {
+      "name": "get_pizza",
+      "description": "Přečíst cenu, aktuální recept a deklarované i nejisté alergenní profily pizzy.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "pizza_id": {
+            "title": "Pizza Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "pizza_id"
+        ],
+        "title": "get_pizzaArguments"
+      },
+      "outputSchema": {
+        "$defs": {
+          "Allergen": {
+            "properties": {
+              "number": {
+                "title": "Number",
+                "type": "integer"
+              },
+              "name": {
+                "title": "Name",
+                "type": "string"
+              }
+            },
+            "required": [
+              "number",
+              "name"
+            ],
+            "title": "Allergen",
+            "type": "object"
+          },
+          "RecipeItem": {
+            "properties": {
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "name": {
+                "title": "Name",
+                "type": "string"
+              },
+              "grams": {
+                "title": "Grams",
+                "type": "integer"
+              },
+              "allergen_profile_complete": {
+                "title": "Allergen Profile Complete",
+                "type": "boolean"
+              },
+              "profile_note": {
+                "title": "Profile Note",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "grams",
+              "allergen_profile_complete",
+              "profile_note"
+            ],
+            "title": "RecipeItem",
+            "type": "object"
+          },
+          "UncertainIngredient": {
+            "properties": {
+              "ingredient": {
+                "title": "Ingredient",
+                "type": "string"
+              },
+              "note": {
+                "title": "Note",
+                "type": "string"
+              }
+            },
+            "required": [
+              "ingredient",
+              "note"
+            ],
+            "title": "UncertainIngredient",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "category": {
+            "title": "Category",
+            "type": "string"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "price_czk": {
+            "title": "Price Czk",
+            "type": "integer"
+          },
+          "available": {
+            "title": "Available",
+            "type": "boolean"
+          },
+          "updated_at": {
+            "title": "Updated At",
+            "type": "string"
+          },
+          "ingredients": {
+            "items": {
+              "$ref": "#/$defs/RecipeItem"
+            },
+            "title": "Ingredients",
+            "type": "array"
+          },
+          "declared_allergens": {
+            "items": {
+              "$ref": "#/$defs/Allergen"
+            },
+            "title": "Declared Allergens",
+            "type": "array"
+          },
+          "uncertain_ingredients": {
+            "items": {
+              "$ref": "#/$defs/UncertainIngredient"
+            },
+            "title": "Uncertain Ingredients",
+            "type": "array"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "is_demo_data": {
+            "title": "Is Demo Data",
+            "type": "boolean"
+          },
+          "safety_note": {
+            "title": "Safety Note",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "category",
+          "description",
+          "price_czk",
+          "available",
+          "updated_at",
+          "ingredients",
+          "declared_allergens",
+          "uncertain_ingredients",
+          "source",
+          "is_demo_data",
+          "safety_note"
+        ],
+        "title": "PizzaDetail",
+        "type": "object"
+      }
+    },
+    {
+      "name": "check_allergen",
+      "description": "Zkontrolovat číslo alergenu 1–14 pro pizzu bez příslibu bezalergennosti.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "pizza_id": {
+            "title": "Pizza Id",
+            "type": "string"
+          },
+          "allergen_number": {
+            "title": "Allergen Number",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "pizza_id",
+          "allergen_number"
+        ],
+        "title": "check_allergenArguments"
+      },
+      "outputSchema": {
+        "$defs": {
+          "UncertainIngredient": {
+            "properties": {
+              "ingredient": {
+                "title": "Ingredient",
+                "type": "string"
+              },
+              "note": {
+                "title": "Note",
+                "type": "string"
+              }
+            },
+            "required": [
+              "ingredient",
+              "note"
+            ],
+            "title": "UncertainIngredient",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "pizza_id": {
+            "title": "Pizza Id",
+            "type": "string"
+          },
+          "allergen_number": {
+            "title": "Allergen Number",
+            "type": "integer"
+          },
+          "allergen_name": {
+            "title": "Allergen Name",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "declared",
+              "uncertain",
+              "not_declared_in_demo_recipe"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "uncertain_ingredients": {
+            "items": {
+              "$ref": "#/$defs/UncertainIngredient"
+            },
+            "title": "Uncertain Ingredients",
+            "type": "array"
+          },
+          "safety_note": {
+            "title": "Safety Note",
+            "type": "string"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "is_demo_data": {
+            "title": "Is Demo Data",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "pizza_id",
+          "allergen_number",
+          "allergen_name",
+          "status",
+          "uncertain_ingredients",
+          "safety_note",
+          "source",
+          "is_demo_data"
+        ],
+        "title": "AllergenCheck",
+        "type": "object"
+      }
+    },
+    {
+      "name": "list_ingredients",
+      "description": "Vypsat modelové suroviny včetně úplnosti jejich alergenního profilu.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "title": "list_ingredientsArguments"
+      },
+      "outputSchema": {
+        "$defs": {
+          "IngredientSummary": {
+            "properties": {
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "name": {
+                "title": "Name",
+                "type": "string"
+              },
+              "allergen_profile_complete": {
+                "title": "Allergen Profile Complete",
+                "type": "boolean"
+              },
+              "profile_note": {
+                "title": "Profile Note",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "name",
+              "allergen_profile_complete",
+              "profile_note"
+            ],
+            "title": "IngredientSummary",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "ingredients": {
+            "items": {
+              "$ref": "#/$defs/IngredientSummary"
+            },
+            "title": "Ingredients",
+            "type": "array"
+          },
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "is_demo_data": {
+            "title": "Is Demo Data",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "ingredients",
+          "count",
+          "source",
+          "is_demo_data"
+        ],
+        "title": "IngredientList",
+        "type": "object"
+      }
+    },
+    {
+      "name": "list_allergens",
+      "description": "Vypsat číslovaný seznam čtrnácti alergenů.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "title": "list_allergensArguments"
+      },
+      "outputSchema": {
+        "$defs": {
+          "Allergen": {
+            "properties": {
+              "number": {
+                "title": "Number",
+                "type": "integer"
+              },
+              "name": {
+                "title": "Name",
+                "type": "string"
+              }
+            },
+            "required": [
+              "number",
+              "name"
+            ],
+            "title": "Allergen",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "allergens": {
+            "items": {
+              "$ref": "#/$defs/Allergen"
+            },
+            "title": "Allergens",
+            "type": "array"
+          },
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "is_demo_data": {
+            "title": "Is Demo Data",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "allergens",
+          "count",
+          "source",
+          "is_demo_data"
+        ],
+        "title": "AllergenList",
+        "type": "object"
+      }
+    }
+  ]
+}

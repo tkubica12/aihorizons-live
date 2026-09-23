@@ -1,0 +1,433 @@
+{
+  "name": "order-history",
+  "version": "0.1.0",
+  "transport": "streamable-http",
+  "path": "/mcp",
+  "tools": [
+    {
+      "name": "list_demo_customers",
+      "description": "Vypsat fiktivní profily, ze kterých si účastník dema vybere.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "title": "list_demo_customersArguments"
+      },
+      "outputSchema": {
+        "$defs": {
+          "Customer": {
+            "properties": {
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "display_name": {
+                "title": "Display Name",
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "display_name"
+            ],
+            "title": "Customer",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "customers": {
+            "items": {
+              "$ref": "#/$defs/Customer"
+            },
+            "title": "Customers",
+            "type": "array"
+          },
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "is_demo_data": {
+            "title": "Is Demo Data",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "customers",
+          "count",
+          "is_demo_data"
+        ],
+        "title": "Customers",
+        "type": "object"
+      }
+    },
+    {
+      "name": "list_customer_orders",
+      "description": "Vypsat objednávky vybraného demo profilu, případně podle stavu.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "title": "Customer Id",
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Status"
+          },
+          "limit": {
+            "default": 20,
+            "title": "Limit",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "customer_id"
+        ],
+        "title": "list_customer_ordersArguments"
+      },
+      "outputSchema": {
+        "$defs": {
+          "OrderSummary": {
+            "properties": {
+              "id": {
+                "title": "Id",
+                "type": "string"
+              },
+              "placed_at": {
+                "title": "Placed At",
+                "type": "string"
+              },
+              "status": {
+                "title": "Status",
+                "type": "string"
+              },
+              "total_czk": {
+                "title": "Total Czk",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "id",
+              "placed_at",
+              "status",
+              "total_czk"
+            ],
+            "title": "OrderSummary",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "customer_id": {
+            "title": "Customer Id",
+            "type": "string"
+          },
+          "orders": {
+            "items": {
+              "$ref": "#/$defs/OrderSummary"
+            },
+            "title": "Orders",
+            "type": "array"
+          },
+          "count": {
+            "title": "Count",
+            "type": "integer"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "is_demo_data": {
+            "title": "Is Demo Data",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "customer_id",
+          "orders",
+          "count",
+          "limit",
+          "is_demo_data"
+        ],
+        "title": "Orders",
+        "type": "object"
+      }
+    },
+    {
+      "name": "get_customer_order",
+      "description": "Přečíst objednávku s historickými cenami jen v rámci vybraného profilu.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "title": "Customer Id",
+            "type": "string"
+          },
+          "order_id": {
+            "title": "Order Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "customer_id",
+          "order_id"
+        ],
+        "title": "get_customer_orderArguments"
+      },
+      "outputSchema": {
+        "$defs": {
+          "OrderItem": {
+            "properties": {
+              "pizza_id": {
+                "title": "Pizza Id",
+                "type": "string"
+              },
+              "pizza_name": {
+                "title": "Pizza Name",
+                "type": "string"
+              },
+              "quantity": {
+                "title": "Quantity",
+                "type": "integer"
+              },
+              "unit_price_czk": {
+                "title": "Unit Price Czk",
+                "type": "integer"
+              },
+              "line_total_czk": {
+                "title": "Line Total Czk",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "pizza_id",
+              "pizza_name",
+              "quantity",
+              "unit_price_czk",
+              "line_total_czk"
+            ],
+            "title": "OrderItem",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "placed_at": {
+            "title": "Placed At",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "total_czk": {
+            "title": "Total Czk",
+            "type": "integer"
+          },
+          "customer_id": {
+            "title": "Customer Id",
+            "type": "string"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/$defs/OrderItem"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "is_demo_data": {
+            "title": "Is Demo Data",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "placed_at",
+          "status",
+          "total_czk",
+          "customer_id",
+          "items",
+          "is_demo_data"
+        ],
+        "title": "OrderDetail",
+        "type": "object"
+      }
+    },
+    {
+      "name": "favorite_pizzas",
+      "description": "Seřadit pizzy podle kusů v doručených objednávkách demo profilu.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "title": "Customer Id",
+            "type": "string"
+          },
+          "limit": {
+            "default": 5,
+            "title": "Limit",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "customer_id"
+        ],
+        "title": "favorite_pizzasArguments"
+      },
+      "outputSchema": {
+        "$defs": {
+          "Favorite": {
+            "properties": {
+              "pizza_id": {
+                "title": "Pizza Id",
+                "type": "string"
+              },
+              "pizza_name": {
+                "title": "Pizza Name",
+                "type": "string"
+              },
+              "quantity": {
+                "title": "Quantity",
+                "type": "integer"
+              },
+              "order_count": {
+                "title": "Order Count",
+                "type": "integer"
+              }
+            },
+            "required": [
+              "pizza_id",
+              "pizza_name",
+              "quantity",
+              "order_count"
+            ],
+            "title": "Favorite",
+            "type": "object"
+          }
+        },
+        "properties": {
+          "customer_id": {
+            "title": "Customer Id",
+            "type": "string"
+          },
+          "pizzas": {
+            "items": {
+              "$ref": "#/$defs/Favorite"
+            },
+            "title": "Pizzas",
+            "type": "array"
+          },
+          "limit": {
+            "title": "Limit",
+            "type": "integer"
+          },
+          "basis": {
+            "title": "Basis",
+            "type": "string"
+          },
+          "is_demo_data": {
+            "title": "Is Demo Data",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "customer_id",
+          "pizzas",
+          "limit",
+          "basis",
+          "is_demo_data"
+        ],
+        "title": "Favorites",
+        "type": "object"
+      }
+    },
+    {
+      "name": "customer_order_summary",
+      "description": "Spočítat doručené, zrušené a celkové objednávky a hodnotu doručených.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "customer_id": {
+            "title": "Customer Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "customer_id"
+        ],
+        "title": "customer_order_summaryArguments"
+      },
+      "outputSchema": {
+        "properties": {
+          "customer_id": {
+            "title": "Customer Id",
+            "type": "string"
+          },
+          "order_count": {
+            "title": "Order Count",
+            "type": "integer"
+          },
+          "delivered_count": {
+            "title": "Delivered Count",
+            "type": "integer"
+          },
+          "cancelled_count": {
+            "title": "Cancelled Count",
+            "type": "integer"
+          },
+          "delivered_total_czk": {
+            "title": "Delivered Total Czk",
+            "type": "integer"
+          },
+          "first_order_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "First Order At"
+          },
+          "last_order_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Order At"
+          },
+          "is_demo_data": {
+            "title": "Is Demo Data",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "customer_id",
+          "order_count",
+          "delivered_count",
+          "cancelled_count",
+          "delivered_total_czk",
+          "first_order_at",
+          "last_order_at",
+          "is_demo_data"
+        ],
+        "title": "HistorySummary",
+        "type": "object"
+      }
+    }
+  ]
+}

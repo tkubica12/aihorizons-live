@@ -54,7 +54,7 @@ async def main() -> None:
                 "customer_id": "demo-boris", "order_id": "ORD-001",
             })
             assert other.is_error
-            print("Order MCP ověřeno: 5 nástrojů, 3 profily a fiktivní historie.")
+            print("Order MCP verified: 5 tools, 3 profiles and fictional history.")
 
 
 if __name__ == "__main__":

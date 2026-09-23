@@ -56,7 +56,7 @@ async def main() -> None:
             })
             assert not uncertain.is_error
             assert uncertain.structured_content["status"] == "uncertain"
-            print("MCP ověřeno: 5 nástrojů, 12 pizz, 27 surovin, 14 alergenů.")
+            print("MCP verified: 5 tools, 12 pizzas, 27 ingredients, 14 allergens.")
 
 
 if __name__ == "__main__":

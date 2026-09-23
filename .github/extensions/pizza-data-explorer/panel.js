@@ -135,3 +135,7 @@ $("call").onclick = () => run(async () => {
 
 const config = await fetch("/api/config").then((response) => response.json());
 $("base-url").value = config.baseUrl;
+if (config.connected) {
+    $("token").placeholder = "Připojeno přes místní Azure Key Vault";
+    status("Azure katalog připojen. Token zůstává pouze v místní proxy.");
+}

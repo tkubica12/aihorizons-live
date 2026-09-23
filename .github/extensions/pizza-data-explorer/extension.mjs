@@ -1,6 +1,7 @@
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { createCanvas, CanvasError, joinSession } from "@github/copilot-sdk/extension";
+import { catalogUrl, loadCatalogToken } from "./azure-token.mjs";
 import { probe, requestMcp } from "./proxy.mjs";
 
 const servers = new Map();
@@ -28,10 +29,11 @@ async function body(req) {
 }
 
 async function startServer(instanceId, baseUrl) {
+    let entry;
     const server = createServer(async (req, res) => {
         try {
             if (req.method === "GET" && req.url === "/api/config") {
-                reply(res, 200, { baseUrl });
+                reply(res, 200, { baseUrl, connected: Boolean(entry.token) });
                 return;
             }
             if (req.method === "POST" && (req.url === "/api/health" || req.url === "/api/mcp")) {
@@ -44,7 +46,12 @@ async function startServer(instanceId, baseUrl) {
                 const input = await body(req);
                 const result = req.url === "/api/health"
                     ? await probe(input.baseUrl)
-                    : await requestMcp(input);
+                    : await requestMcp({
+                        ...input,
+                        token: input.token || (
+                            input.baseUrl === entry.baseUrl ? entry.token : undefined
+                        ),
+                    });
                 reply(res, 200, result);
                 return;
             }
@@ -64,7 +71,8 @@ async function startServer(instanceId, baseUrl) {
         }
     });
     await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
-    return { server, url: `http://127.0.0.1:${server.address().port}/` };
+    entry = { server, url: `http://127.0.0.1:${server.address().port}/`, baseUrl, token: null };
+    return entry;
 }
 
 await joinSession({
@@ -97,6 +105,27 @@ await joinSession({
                     } catch (error) {
                         if (error instanceof CanvasError) throw error;
                         throw new CanvasError("probe_failed", error.message);
+                    }
+                },
+            }, {
+                name: "connect_azure",
+                description: "Připojit tento panel ke katalogovému MCP pomocí tokenu z Azure Key Vault, bez zobrazení tokenu.",
+                handler: async ({ instanceId }) => {
+                    const entry = servers.get(instanceId);
+                    if (!entry || entry.baseUrl !== catalogUrl) {
+                        throw new CanvasError("wrong_endpoint", "Otevřete katalogový panel na schválené Azure adrese.");
+                    }
+                    let token;
+                    try {
+                        token = await loadCatalogToken();
+                        const result = await requestMcp({
+                            baseUrl: entry.baseUrl, token, method: "tools/list",
+                        });
+                        entry.token = token;
+                        return { connected: true, toolCount: result.response.tools.length };
+                    } catch {
+                        throw new CanvasError("azure_connect_failed",
+                            "Připojení selhalo; ověřte místní Azure CLI přihlášení a přístup ke Key Vaultu.");
                     }
                 },
             }],

@@ -54,9 +54,40 @@ to the HTTPS Container App base URL and `MCP_API_TOKEN` in the shell environment
 scripts/verify_mcp.py`. It checks the health endpoint, tool discovery and
 five real tool calls against seeded records.
 
+## Microsoft Foundry agent
+
+The project `aihorizons` has two distinct CustomKeys project connections:
+`pizza-catalog-mcp` for the catalog and `pizza-orders-mcp` for the order
+history. Each stores an `Authorization: Bearer <token>` header for its own
+Container App `/mcp` endpoint. The shared demo tokens are copied from Key
+Vault `kvaihorizons673af34d` at registration time; changing either Key Vault
+secret requires updating its Foundry connection as well. Foundry project
+members with connection access can retrieve shared credentials. This is not
+customer authentication: the order tools only use selectable fictional demo
+profiles.
+
+With Azure CLI access to the project and Key Vault secrets, run
+`uv run --frozen python scripts/configure_foundry_mcp.py`. The script creates
+missing connections without printing secrets, checks existing connection
+credentials against Key Vault and adds both read-only MCP tools to a new
+version of `nejlepsi-ai-pizza-na-pankraci` while preserving its existing tools
+and instructions. The active snapshot in `foundry/` records agent version 8.
+The snapshot does **not** store connection credentials: provision the
+connections before restoring an agent in another project. In the Foundry
+portal, test the agent with “Jaké máte dostupné pizzy a kolik stojí?” and
+“Kolik objednávek má demo-anna a kolik utratila?”; inspect its `mcp_call`
+events rather than treating a plausible answer as evidence of MCP access.
+Approval is disabled for these read-only demo calls.
+
 Open the project Canvas **Pizza catalog / MCP** for a manual test. Enter the
 Container App URL and token (the token is held only in the open panel), click
 **Ověřit službu**, then **Načíst MCP nástroje** and **Vyhledat pizzy**.
+For an already open panel configured with the project's catalog URL, the agent
+can invoke `connect_azure`: the local extension reads `mcp-api-token` using
+the operator's Azure CLI login and keeps it in the loopback proxy's memory,
+without returning it to chat or the iframe. The operator needs Key Vault
+secret-read permission. The connection expires when the extension process
+restarts; manual token entry remains available for other local setups.
 Select a pizza to inspect its recipe and allergen uncertainty, or call a tool
 with arbitrary JSON arguments and inspect the protocol response. Do not paste
 the token into screenshots, shared logs or issue descriptions.

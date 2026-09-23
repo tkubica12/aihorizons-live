@@ -1,0 +1,3 @@
+# Preserve snapshot hashes and prompt bytes across Windows checkouts.
+foundry/** -text
+foundry/README.md text eol=lf

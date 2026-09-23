@@ -19,3 +19,7 @@ jedné záložky, tlačítko „Nový chat“ začne nový rozhovor.
 Jde o **lokální demo bez přihlášení zákazníka**. Server nespouštějte na veřejné
 síťové adrese a neposílejte do něj skutečná zákaznická data. Pro testy použijte
 `uv run pytest tests/test_web.py`.
+
+Definice agenta a evaluací v datové rovině Foundry jsou uložené zvlášť
+v [`foundry/`](foundry/README.md). Skript `scripts/foundry_assets.py` umožňuje
+validaci, opětovné načtení z portálu a explicitní obnovu bez spuštění evaluace.

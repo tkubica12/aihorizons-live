@@ -1,0 +1,85 @@
+{
+  "source_id": "eval_ff5fb1f677274793a81ff27c98b399e6",
+  "runs": [
+    {
+      "id": "evalrun_7b5b4055109049dc9e014e8675e50f64",
+      "status": "completed",
+      "created_at": 1790154855,
+      "result_counts": {
+        "errored": 0,
+        "failed": 46,
+        "passed": 4,
+        "total": 50,
+        "skipped": 0
+      },
+      "data_source": {
+        "source": {
+          "id": "azureai://accounts/aihorizons-resource/projects/aihorizons/data/pizza_customers/versions/1.0",
+          "type": "file_id"
+        },
+        "type": "azure_ai_target_completions",
+        "input_messages": {
+          "type": "template",
+          "template": [
+            {
+              "role": "user",
+              "content": "{{item.query}}",
+              "type": "message"
+            }
+          ]
+        },
+        "target": {
+          "type": "azure_ai_agent",
+          "name": "nejlepsi-ai-pizza-na-pankraci",
+          "version": null,
+          "tool_descriptions": []
+        },
+        "item_generation_params": {
+          "type": "target_completions",
+          "max_concurrency": 1
+        }
+      },
+      "report_url": "https://ai.azure.com/nextgen/r/ZzrzTWsoQdy8e_UHQYBF5g,RG-AI-Horizons,,aihorizons-resource,aihorizons/build/evaluations/eval_ff5fb1f677274793a81ff27c98b399e6/run/evalrun_7b5b4055109049dc9e014e8675e50f64"
+    },
+    {
+      "id": "evalrun_a364f118cead43b78fb94126ae04365a",
+      "status": "completed",
+      "created_at": 1790153257,
+      "result_counts": {
+        "errored": 0,
+        "failed": 50,
+        "passed": 0,
+        "total": 50,
+        "skipped": 0
+      },
+      "data_source": {
+        "source": {
+          "id": "azureai://accounts/aihorizons-resource/projects/aihorizons/data/pizza_customers/versions/1.0",
+          "type": "file_id"
+        },
+        "type": "azure_ai_target_completions",
+        "input_messages": {
+          "type": "template",
+          "template": [
+            {
+              "role": "user",
+              "content": "{{item.query}}",
+              "type": "message"
+            }
+          ]
+        },
+        "target": {
+          "type": "azure_ai_agent",
+          "name": "nejlepsi-ai-pizza-na-pankraci",
+          "version": null,
+          "tool_descriptions": []
+        },
+        "item_generation_params": {
+          "type": "target_completions",
+          "max_concurrency": 1
+        }
+      },
+      "report_url": "https://ai.azure.com/nextgen/r/ZzrzTWsoQdy8e_UHQYBF5g,RG-AI-Horizons,,aihorizons-resource,aihorizons/build/evaluations/eval_ff5fb1f677274793a81ff27c98b399e6/run/evalrun_a364f118cead43b78fb94126ae04365a"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "endpoint": "https://aihorizons-resource.services.ai.azure.com/api/projects/aihorizons",
+  "agents": [
+    {
+      "name": "nejlepsi-ai-pizza-na-pankraci",
+      "version": "4"
+    }
+  ],
+  "datasets": [
+    {
+      "name": "pizza_customers",
+      "version": "1.0"
+    }
+  ],
+  "evaluators": [
+    {
+      "name": "test-protivnosti",
+      "version": "1"
+    }
+  ],
+  "evaluations": [
+    {
+      "name": "eval-protivnost"
+    }
+  ]
+}

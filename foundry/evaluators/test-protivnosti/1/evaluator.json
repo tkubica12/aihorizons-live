@@ -1,0 +1,45 @@
+{
+  "name": "test-protivnosti",
+  "display_name": "test protivnosti",
+  "description": "",
+  "categories": [
+    "quality",
+    "agents"
+  ],
+  "supported_evaluation_levels": [
+    "turn"
+  ],
+  "definition": {
+    "type": "prompt",
+    "init_parameters": {
+      "required": [
+        "deployment_name"
+      ],
+      "type": "object",
+      "properties": {
+        "deployment_name": {
+          "type": "string"
+        },
+        "threshold": {
+          "type": "number",
+          "minimum": 1,
+          "maximum": 5
+        }
+      }
+    },
+    "metrics": {
+      "test-protivnosti": {
+        "type": "ordinal",
+        "desirable_direction": "increase",
+        "min_value": 1.0,
+        "max_value": 5.0
+      }
+    },
+    "data_schema": {
+      "required": [],
+      "type": "object",
+      "properties": {}
+    },
+    "prompt_file": "prompt.txt"
+  }
+}

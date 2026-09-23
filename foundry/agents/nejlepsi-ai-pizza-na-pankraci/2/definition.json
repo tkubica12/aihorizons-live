@@ -1,0 +1,9 @@
+{
+  "kind": "prompt",
+  "model": "gpt-6-sol",
+  "reasoning": {
+    "effort": "low"
+  },
+  "tools": [],
+  "instructions_file": "instructions.txt"
+}

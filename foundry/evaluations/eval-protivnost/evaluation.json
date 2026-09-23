@@ -1,0 +1,71 @@
+{
+  "name": "eval-protivnost",
+  "source_id": "eval_ff5fb1f677274793a81ff27c98b399e6",
+  "data_source_config": {
+    "type": "custom",
+    "item_schema": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "number"
+        },
+        "description": {
+          "type": "string"
+        },
+        "query": {
+          "type": "string"
+        },
+        "candidate_response": {
+          "type": "string"
+        }
+      },
+      "required": []
+    },
+    "include_sample_schema": false
+  },
+  "testing_criteria": [
+    {
+      "name": "test-protivnosti",
+      "type": "azure_ai_evaluator",
+      "evaluator_name": "test-protivnosti",
+      "evaluator_version": "1",
+      "initialization_parameters": {
+        "deployment_name": "gpt-6-sol",
+        "threshold": 4
+      },
+      "data_mapping": {
+        "query": "{{item.query}}",
+        "response": "{{sample.output_text}}",
+        "tool_calls": "{{sample.tool_calls}}",
+        "tool_definitions": "{{sample.tool_definitions}}"
+      }
+    }
+  ],
+  "run_data_source": {
+    "source": {
+      "id": "azureai://accounts/aihorizons-resource/projects/aihorizons/data/pizza_customers/versions/1.0",
+      "type": "file_id"
+    },
+    "type": "azure_ai_target_completions",
+    "input_messages": {
+      "type": "template",
+      "template": [
+        {
+          "role": "user",
+          "content": "{{item.query}}",
+          "type": "message"
+        }
+      ]
+    },
+    "target": {
+      "type": "azure_ai_agent",
+      "name": "nejlepsi-ai-pizza-na-pankraci",
+      "version": "4",
+      "tool_descriptions": []
+    },
+    "item_generation_params": {
+      "type": "target_completions",
+      "max_concurrency": 1
+    }
+  }
+}

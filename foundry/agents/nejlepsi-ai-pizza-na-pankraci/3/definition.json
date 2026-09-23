@@ -1,0 +1,12 @@
+{
+  "kind": "prompt",
+  "rai_config": {
+    "rai_policy_name": "/subscriptions/673af34d-6b28-41dc-bc7b-f507418045e6/resourceGroups/RG-AI-Horizons/providers/Microsoft.CognitiveServices/accounts/aihorizons-resource/raiPolicies/Guardrails402"
+  },
+  "model": "gpt-6-sol",
+  "reasoning": {
+    "effort": "low"
+  },
+  "tools": [],
+  "instructions_file": "instructions.txt"
+}

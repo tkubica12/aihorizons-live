@@ -1,0 +1,10 @@
+{
+  "kind": "prompt",
+  "model": "gpt-6-sol",
+  "tools": [
+    {
+      "type": "web_search"
+    }
+  ],
+  "instructions_file": "instructions.txt"
+}

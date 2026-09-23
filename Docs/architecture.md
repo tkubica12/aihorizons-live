@@ -16,6 +16,13 @@ storage to maintain context until "New chat" is selected. No customer login or
 profile isolation is implemented: bind the server to loopback only, and do not
 use the demo with real customer data or publish it without access controls.
 
+Foundry project data-plane definitions are separately snapshotted under
+`foundry/`: prompt-agent versions, evaluation JSONL datasets, custom evaluators,
+evaluation recipes and historical run summaries. These are not managed by
+Terraform. See [ADR-0004](ADR/0004-foundry-data-plane-assets.md) and
+[`foundry/README.md`](../foundry/README.md) for the explicit export and
+drift-checked restore workflow.
+
 ## Catalog milestone
 
 Azure HorizonDB (PostgreSQL 17, Sweden Central) holds a relational, fictional

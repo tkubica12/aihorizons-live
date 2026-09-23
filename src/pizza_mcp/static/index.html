@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pizza na Pankráci | Pizza asistent</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="Pizza na Pankráci – úvod">
+        <span class="brand-mark">✳</span><span>PIZZA<span class="brand-light"> NA PANKRÁCI</span></span>
+      </a>
+      <span class="topbar-note"><span class="dot"></span> Lokální demo</span>
+    </header>
+    <main>
+      <section class="intro">
+        <div class="intro-copy">
+          <div class="eyebrow">Z PANKRÁCE NA VÁŠ STŮL <span>✦</span> DOBRÁ CHUŤ ZAČÍNÁ TADY</div>
+          <h1>Na pizzu máme <em>odpověď.</em></h1>
+          <p>Co vás zajímá o naší pizze? Zeptejte se našeho asistenta na nabídku, suroviny nebo alergeny.</p>
+          <a class="intro-link" href="#chat">Zeptat se asistenta <span aria-hidden="true">↘</span></a>
+        </div>
+        <div class="pizza-art" aria-hidden="true">
+          <div class="orbit orbit-one"></div><div class="orbit orbit-two"></div>
+          <img src="/static/pizza.svg" alt="">
+          <span class="art-badge">PEČENO<br> S LÁSKOU <span>♥</span></span>
+        </div>
+      </section>
+      <section id="chat" class="chat-section" aria-label="Chat s pizza asistentem">
+        <div class="section-heading">
+          <div><span class="eyebrow">PŘÍMO Z NAŠÍ KUCHYNĚ</span><h2>Pokecáme o pizze?</h2></div>
+          <span class="section-caption">Váš pizza průvodce je připravený.</span>
+        </div>
+        <div class="chat-card">
+          <div class="chat-header">
+            <span class="avatar">✳</span>
+            <span class="chat-identity"><strong>Pizza asistent</strong><small>Rád poradím s výběrem</small></span>
+            <button id="reset" class="reset" type="button" title="Začít nový rozhovor">Nový chat ↻</button>
+          </div>
+          <div id="messages" class="messages" role="log" aria-live="polite" aria-relevant="additions">
+            <div class="message assistant"><span class="message-avatar" aria-hidden="true">✳</span><div class="bubble">Ahoj! 👋 Vítej u Pizzy na Pankráci. Na co máš dnes chuť?</div></div>
+          </div>
+          <div class="composer-wrap">
+            <div class="suggestions" aria-label="Návrhy otázek">
+              <button type="button" class="suggestion">Jaké máte pizzy?</button>
+              <button type="button" class="suggestion">Co obsahuje Margherita?</button>
+              <button type="button" class="suggestion">Jaké jsou alergeny?</button>
+            </div>
+            <form id="chat-form" class="composer">
+              <label class="sr-only" for="message">Vaše zpráva</label>
+              <input id="message" name="message" placeholder="Napište, na co máte chuť…" autocomplete="off" maxlength="4000" required>
+              <button id="send" type="submit" aria-label="Odeslat zprávu">Odeslat <span aria-hidden="true">↗</span></button>
+            </form>
+            <p id="status" class="status" role="status"></p>
+            <p class="disclaimer">Demo asistent · Informace o alergenech si vždy ověřte u obsluhy.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer><span>✳ PIZZA NA PANKRÁCI</span><span>Malý kousek radosti, každý den.</span></footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-labelledby="title">
+  <title id="title">Ilustrace pizzy s rajčaty, bazalkou a mozzarellou</title>
+  <defs>
+    <radialGradient id="crust"><stop offset=".72" stop-color="#f1b869"/><stop offset=".91" stop-color="#d68940"/><stop offset="1" stop-color="#ac542d"/></radialGradient>
+    <radialGradient id="sauce"><stop offset=".68" stop-color="#d95231"/><stop offset="1" stop-color="#a72e21"/></radialGradient>
+    <filter id="shadow"><feGaussianBlur stdDeviation="13"/></filter>
+  </defs>
+  <ellipse cx="300" cy="330" rx="267" ry="260" fill="#1c140e" opacity=".38" filter="url(#shadow)"/>
+  <circle cx="300" cy="300" r="265" fill="url(#crust)"/>
+  <circle cx="300" cy="300" r="225" fill="url(#sauce)"/>
+  <g fill="#fff2cf" opacity=".97">
+    <ellipse cx="247" cy="165" rx="43" ry="25" transform="rotate(-24 247 165)"/>
+    <ellipse cx="388" cy="208" rx="42" ry="26" transform="rotate(28 388 208)"/>
+    <ellipse cx="175" cy="256" rx="37" ry="26" transform="rotate(22 175 256)"/>
+    <ellipse cx="294" cy="271" rx="50" ry="32" transform="rotate(-15 294 271)"/>
+    <ellipse cx="420" cy="337" rx="44" ry="29" transform="rotate(-30 420 337)"/>
+    <ellipse cx="223" cy="385" rx="47" ry="30" transform="rotate(35 223 385)"/>
+    <ellipse cx="335" cy="447" rx="42" ry="26" transform="rotate(16 335 447)"/>
+  </g>
+  <g fill="#237644" stroke="#185632" stroke-width="3">
+    <path d="M313 118 Q367 97 350 156 Q327 179 313 118Z"/>
+    <path d="M143 340 Q197 304 190 365 Q174 394 143 340Z"/>
+    <path d="M362 281 Q393 232 413 287 Q398 318 362 281Z"/>
+    <path d="M267 344 Q313 325 306 382 Q287 409 267 344Z"/>
+    <path d="M382 432 Q438 419 413 471 Q385 488 382 432Z"/>
+  </g>
+  <g fill="#f8cd72" opacity=".45">
+    <circle cx="143" cy="195" r="9"/><circle cx="440" cy="165" r="8"/>
+    <circle cx="350" cy="365" r="8"/><circle cx="176" cy="448" r="10"/>
+  </g>
+</svg>

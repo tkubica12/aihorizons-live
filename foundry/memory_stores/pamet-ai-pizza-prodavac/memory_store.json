@@ -1,0 +1,17 @@
+{
+  "name": "pamet-ai-pizza-prodavac",
+  "description": "",
+  "metadata": {},
+  "definition": {
+    "kind": "default",
+    "chat_model": "gpt-6-sol",
+    "embedding_model": "text-embedding-3-large",
+    "options": {
+      "user_profile_enabled": true,
+      "user_profile_details": "Dietary restrictions, alergence, taste preferences, favorite pizzas and ingredients, salutation, personality type (tykat vs. vykat, formalne vs. neformalne), do NOT store information about spouse and kids.",
+      "chat_summary_enabled": true,
+      "procedural_memory_enabled": false,
+      "default_ttl_seconds": 0
+    }
+  }
+}

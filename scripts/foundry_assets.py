@@ -18,6 +18,8 @@ from azure.identity import AzureCliCredential
 ROOT = Path(__file__).resolve().parents[1] / "foundry"
 MAX_DATASET_BYTES = 5_000_000
 NAME = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_.-]*$")
+API_VERSION = re.compile(r"^\d{4}-\d{2}-\d{2}(?:-preview)?$")
+CONNECTION_METADATA = frozenset({"type", "knowledgeBaseName", "displayName", "ResourceId", "ApiType", "ApiVersion", "DeploymentApiVersion", "toolEntityId"})
 
 
 def component(value: str) -> str:
@@ -102,6 +104,28 @@ def evaluation_definition(evaluation: object) -> tuple[dict, list[dict]]:
     return source, criteria
 
 
+def connection_inventory(connection: object) -> dict:
+    data = connection.as_dict()
+    target = data.get("target", "")
+    if target.startswith("https://"):
+        parts = urlsplit(target)
+        if (parts.username or parts.password or parts.fragment or
+                any(key != "api-version" or not API_VERSION.fullmatch(value)
+                    for key, value in parse_qsl(parts.query, keep_blank_values=True))):
+            raise ValueError(f"Connection {connection.name} has a target containing possible credentials")
+    elif not target.startswith("/subscriptions/"):
+        raise ValueError(f"Unexpected connection target for {connection.name}")
+    return {
+        "name": component(connection.name),
+        "type": data["type"],
+        "target": target,
+        "is_default": data.get("isDefault", False),
+        "credential_type": (data.get("credentials") or {}).get("type"),
+        "metadata": {key: value for key, value in (data.get("metadata") or {}).items()
+                     if key in CONNECTION_METADATA},
+    }
+
+
 def validate() -> dict:
     manifest = load(ROOT / "manifest.json")
     if not manifest["endpoint"].startswith("https://"):
@@ -129,14 +153,54 @@ def validate() -> dict:
         spec = load(ROOT / "evaluations" / component(item["name"]) / "evaluation.json")
         if not spec["testing_criteria"] or not spec["run_data_source"]:
             raise ValueError(f"Incomplete evaluation recipe: {item['name']}")
+    for item in manifest.get("toolboxes", []):
+        name = component(item["name"])
+        version = component(item["version"])
+        directory = ROOT / "toolboxes" / name
+        versions = list(directory.iterdir())
+        if not versions or version not in {path.name for path in versions}:
+            raise ValueError(f"Missing toolbox default version: {name}:{version}")
+        for path in versions:
+            if not path.is_dir():
+                raise ValueError(f"Unexpected toolbox asset: {path}")
+            spec = load(path / "toolbox.json")
+            if spec["name"] != name or spec["version"] != component(path.name) or not spec["tools"]:
+                raise ValueError(f"Invalid toolbox: {name}:{path.name}")
+    for item in manifest.get("memory_stores", []):
+        name = component(item["name"])
+        spec = load(ROOT / "memory_stores" / name / "memory_store.json")
+        if spec["name"] != name or not spec["definition"]:
+            raise ValueError(f"Invalid memory store: {name}")
+    connections = load(ROOT / "connections.json") if "connections" in manifest else []
+    if sorted(component(item["name"]) for item in connections) != sorted(
+        component(name) for name in manifest.get("connections", [])
+    ):
+        raise ValueError("Connection inventory does not match manifest")
+    if any(set(item) != {"name", "type", "target", "is_default", "credential_type", "metadata"}
+           or set(item["metadata"]) - CONNECTION_METADATA for item in connections):
+        raise ValueError("Unexpected fields in connection inventory")
     return manifest
 
 
 def snapshot(project: AIProjectClient, endpoint: str, overwrite: bool) -> None:
     files: dict[Path, bytes] = {}
-    manifest = {"endpoint": endpoint, "agents": [], "datasets": [], "evaluators": [], "evaluations": []}
+    manifest = {"endpoint": endpoint, "agents": [], "datasets": [], "evaluators": [],
+                "evaluations": [], "toolboxes": [], "memory_stores": [], "connections": []}
     evaluator_versions = {}
     agent_versions = {}
+    unsupported = {
+        "indexes": project.indexes,
+        "evaluation rules": project.evaluation_rules,
+        "skills": project.beta.skills,
+        "routines": project.beta.routines,
+        "schedules": project.beta.schedules,
+        "evaluation taxonomies": project.beta.evaluation_taxonomies,
+        "insight monitors": project.beta.agent_insight_monitors,
+        "red teams": project.beta.red_teams,
+    }
+    for label, operations in unsupported.items():
+        if any(operations.list()):
+            raise ValueError(f"Foundry has {label} not supported by this snapshot; refusing a partial export")
 
     for agent in project.agents.list():
         name = component(agent.name)
@@ -230,6 +294,40 @@ def snapshot(project: AIProjectClient, endpoint: str, overwrite: bool) -> None:
         })
         manifest["evaluations"].append({"name": name})
 
+    for toolbox in project.toolboxes.list():
+        name = component(toolbox.name)
+        manifest["toolboxes"].append({"name": name, "version": component(toolbox.default_version)})
+        versions = list(project.toolboxes.list_versions(name))
+        if not versions or toolbox.default_version not in {version.version for version in versions}:
+            raise ValueError(f"Toolbox {name} has no saved default version")
+        for version in versions:
+            version_dir = Path("toolboxes") / name / component(version.version)
+            definition = version.as_dict()
+            files[version_dir / "toolbox.json"] = encoded({
+                "name": name,
+                "version": version.version,
+                "tools": definition["tools"],
+                "skills": definition.get("skills") or [],
+                "policies": definition.get("policies") or {},
+                "metadata": definition.get("metadata") or {},
+            })
+
+    for memory in project.beta.memory_stores.list():
+        name = component(memory.name)
+        detail = project.beta.memory_stores.get(name).as_dict()
+        files[Path("memory_stores") / name / "memory_store.json"] = encoded({
+            "name": name,
+            "description": detail.get("description") or "",
+            "metadata": detail.get("metadata") or {},
+            "definition": detail["definition"],
+        })
+        manifest["memory_stores"].append({"name": name})
+
+    connections = sorted((connection_inventory(c) for c in project.connections.list()),
+                         key=lambda c: c["name"])
+    manifest["connections"] = [c["name"] for c in connections]
+    files[Path("connections.json")] = encoded(connections)
+
     files[Path("manifest.json")] = encoded(manifest)
     conflicts = [ROOT / path for path, data in files.items()
                  if (ROOT / path).exists() and (ROOT / path).read_bytes() != data]
@@ -248,9 +346,49 @@ def apply(project: AIProjectClient, endpoint: str, *, dry_run: bool = False) -> 
     remote_datasets = {(data.name, data.version) for data in project.datasets.list()}
     remote_evaluators = {ev.name for ev in project.beta.evaluators.list(type="custom")}
     remote_agents = {agent.name for agent in project.agents.list()}
+    remote_toolboxes = {toolbox.name: toolbox for toolbox in project.toolboxes.list()}
+    remote_memory = {memory.name for memory in project.beta.memory_stores.list()}
     new_datasets = []
     new_evaluators = []
     new_agents = []
+    new_toolboxes = []
+    new_memory = []
+    expected_connections = load(ROOT / "connections.json") if "connections" in manifest else []
+    actual_connections = sorted((connection_inventory(c) for c in project.connections.list()),
+                                key=lambda c: c["name"])
+    if actual_connections != expected_connections:
+        raise ValueError("Project connections differ from the saved inventory; reconcile separately")
+
+    for item in manifest.get("memory_stores", []):
+        name = item["name"]
+        spec = load(ROOT / "memory_stores" / component(name) / "memory_store.json")
+        if name in remote_memory:
+            actual = project.beta.memory_stores.get(name).as_dict()
+            if any(actual.get(key) != spec[key] for key in ("name", "description", "metadata", "definition")):
+                raise ValueError(f"Remote memory store differs: {name}")
+            print(f"Memory store unchanged: {name}")
+        else:
+            new_memory.append(spec)
+
+    for item in manifest.get("toolboxes", []):
+        name, version = item["name"], item["version"]
+        directory = ROOT / "toolboxes" / component(name)
+        if name in remote_toolboxes:
+            remote = remote_toolboxes[name]
+            if remote.default_version != version:
+                raise ValueError(f"Remote toolbox default version differs: {name}")
+            for local in directory.iterdir():
+                if not local.is_dir():
+                    continue
+                spec = load(local / "toolbox.json")
+                actual = project.toolboxes.get_version(name, local.name).as_dict()
+                if any(actual.get(key) != spec[key] for key in ("tools", "skills", "policies", "metadata")):
+                    raise ValueError(f"Remote toolbox differs: {name}:{local.name}")
+            print(f"Toolbox unchanged: {name}:{version}")
+        else:
+            versions = sorted((load(path / "toolbox.json") for path in directory.iterdir() if path.is_dir()),
+                              key=lambda item: int(item["version"]))
+            new_toolboxes.append((name, version, versions))
     for item in manifest["datasets"]:
         name, version = item["name"], item["version"]
         directory = ROOT / "datasets" / component(name) / component(version)
@@ -315,6 +453,10 @@ def apply(project: AIProjectClient, endpoint: str, *, dry_run: bool = False) -> 
                 raise ValueError(f"Remote repository evaluation differs: {repo_name}")
 
     if dry_run:
+        for spec in new_memory:
+            print(f"Would create memory store: {spec['name']}")
+        for name, version, _ in new_toolboxes:
+            print(f"Would create toolbox: {name} (default {version})")
         for name, version, _ in new_datasets:
             print(f"Would upload dataset: {name}:{version}")
         for name, _ in new_evaluators:
@@ -327,6 +469,21 @@ def apply(project: AIProjectClient, endpoint: str, *, dry_run: bool = False) -> 
                 print(f"Would create evaluation recipe: {name} (no run)")
         return
 
+    for spec in new_memory:
+        project.beta.memory_stores.create(body=spec)
+        print(f"Created memory store: {spec['name']} (stored memories are not restored)")
+    for name, default_version, versions in new_toolboxes:
+        for spec in versions:
+            created = project.toolboxes.create_version(name, body={
+                "tools": spec["tools"],
+                "skills": spec["skills"],
+                "policies": spec["policies"],
+                "metadata": spec["metadata"],
+            })
+            if created.version != spec["version"]:
+                raise ValueError(f"Toolbox version mismatch for {name}: expected {spec['version']}, got {created.version}")
+        project.toolboxes.update(name, default_version=default_version)
+        print(f"Created toolbox: {name} (default {default_version})")
     for name, version, path in new_datasets:
         project.datasets.upload_file(name=name, version=version, file_path=str(path))
         print(f"Uploaded dataset: {name}:{version}")
@@ -362,7 +519,10 @@ def main() -> None:
     if args.command == "validate":
         manifest = validate()
         print(f"Valid snapshot: {len(manifest['agents'])} agents, {len(manifest['datasets'])} datasets, "
-              f"{len(manifest['evaluators'])} evaluators, {len(manifest['evaluations'])} evaluations")
+              f"{len(manifest['evaluators'])} evaluators, {len(manifest['evaluations'])} evaluations, "
+              f"{len(manifest.get('toolboxes', []))} toolboxes, "
+              f"{len(manifest.get('memory_stores', []))} memory stores, "
+              f"{len(manifest.get('connections', []))} connections")
         return
     with AzureCliCredential() as credential, AIProjectClient(endpoint=args.endpoint, credential=credential) as project:
         if args.command == "snapshot":

@@ -1,0 +1,32 @@
+{
+  "name": "sada-nastroju-pro-ai-borce",
+  "version": "1",
+  "tools": [
+    {
+      "type": "toolbox_search",
+      "name": "toolbox_search"
+    },
+    {
+      "type": "mcp",
+      "name": "kb-kb-pizza-mtcxs",
+      "server_label": "kb-kb-pizza-mtcxs",
+      "server_url": "https://aihorizons-srch-swdh.search.windows.net/knowledgebases/kb-pizza/mcp?api-version=2026-08-01-preview",
+      "require_approval": "never",
+      "project_connection_id": "kb-kb-pizza-mtcxs"
+    },
+    {
+      "type": "mcp",
+      "name": "pizza-catalog-mcp",
+      "server_label": "pizza-catalog-mcp",
+      "server_url": "https://pizza-mcp.salmonwater-e074ca76.swedencentral.azurecontainerapps.io/mcp",
+      "project_connection_id": "pizza-catalog-mcp"
+    }
+  ],
+  "skills": [],
+  "policies": {
+    "rai_config": {
+      "rai_policy_name": "/subscriptions/673af34d-6b28-41dc-bc7b-f507418045e6/resourceGroups/RG-AI-Horizons/providers/Microsoft.CognitiveServices/accounts/aihorizons-resource/raiPolicies/Guardrails402"
+    }
+  },
+  "metadata": {}
+}

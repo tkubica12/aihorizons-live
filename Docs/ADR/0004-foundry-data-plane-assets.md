@@ -39,11 +39,18 @@ Use `scripts/foundry_assets.py snapshot` for read-only import and `apply` for
 explicit, drift-checked restoration on the same project. Record historical
 run IDs and aggregate results, but do not rerun evaluations as a side effect
 of infrastructure deployment. Pin versions in the stored rerunnable recipe.
+Snapshot toolbox versions and memory-store configuration separately; inventory
+connection targets and authentication types without exporting credentials.
 
 ## Consequences
 
 Portal edits require a reviewed snapshot update. The checked-in files are
 not a replacement for Foundry's run history or the full result artifacts.
+User memories and connection credentials are not exported. Search knowledge
+sources and their generated indexes are a separate service data plane; the
+read API redacts credentials needed to recreate the existing knowledge source.
+Recovery of a deleted environment therefore needs independently managed
+secrets and a separate Search restoration procedure before agent tools work.
 Datasets and prompts must be reviewed before public commits. Changing a
 model, RAI policy, connected tool or project endpoint may require a
 separate infrastructure or permission change before restoration succeeds.

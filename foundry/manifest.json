@@ -3,7 +3,7 @@
   "agents": [
     {
       "name": "nejlepsi-ai-pizza-na-pankraci",
-      "version": "8"
+      "version": "15"
     }
   ],
   "datasets": [
@@ -22,5 +22,24 @@
     {
       "name": "eval-protivnost"
     }
+  ],
+  "toolboxes": [
+    {
+      "name": "sada-nastroju-pro-ai-borce",
+      "version": "1"
+    }
+  ],
+  "memory_stores": [
+    {
+      "name": "pamet-ai-pizza-prodavac"
+    }
+  ],
+  "connections": [
+    "FoundryMCPServerpreview",
+    "aihorizonsresourceapp0mtcxs",
+    "aihorizonssrchswdh0mtcxs",
+    "kb-kb-pizza-mtcxs",
+    "pizza-catalog-mcp",
+    "pizza-orders-mcp"
   ]
 }

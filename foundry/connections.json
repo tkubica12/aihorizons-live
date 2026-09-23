@@ -1,0 +1,71 @@
+[
+  {
+    "name": "FoundryMCPServerpreview",
+    "type": "RemoteTool",
+    "target": "https://mcp.ai.azure.com",
+    "is_default": false,
+    "credential_type": "UserEntraToken",
+    "metadata": {
+      "toolEntityId": "azureml://location/eastus/apiCenter/registry-prod-bl/type/tools/objectId/microsoft-foundry-mcp-server/version/1",
+      "type": "catalog_MCP"
+    }
+  },
+  {
+    "name": "aihorizonsresourceapp0mtcxs",
+    "type": "AppInsights",
+    "target": "/subscriptions/673af34d-6b28-41dc-bc7b-f507418045e6/resourceGroups/RG-AI-Horizons/providers/microsoft.insights/components/aihorizons-resource-appinsights",
+    "is_default": true,
+    "credential_type": "ApiKey",
+    "metadata": {
+      "displayName": "aihorizons-resource-appinsights",
+      "ApiType": "Azure",
+      "ResourceId": "/subscriptions/673af34d-6b28-41dc-bc7b-f507418045e6/resourceGroups/RG-AI-Horizons/providers/microsoft.insights/components/aihorizons-resource-appinsights"
+    }
+  },
+  {
+    "name": "aihorizonssrchswdh0mtcxs",
+    "type": "CognitiveSearch",
+    "target": "https://aihorizons-srch-swdh.search.windows.net/",
+    "is_default": true,
+    "credential_type": "AAD",
+    "metadata": {
+      "displayName": "aihorizons-srch-swdh",
+      "type": "azure_ai_search",
+      "ApiType": "Azure",
+      "ResourceId": "/subscriptions/673af34d-6b28-41dc-bc7b-f507418045e6/resourceGroups/RG-AI-Horizons/providers/Microsoft.Search/searchServices/aihorizons-srch-swdh",
+      "ApiVersion": "2024-05-01-preview",
+      "DeploymentApiVersion": "2023-11-01"
+    }
+  },
+  {
+    "name": "kb-kb-pizza-mtcxs",
+    "type": "RemoteTool",
+    "target": "https://aihorizons-srch-swdh.search.windows.net/knowledgebases/kb-pizza/mcp?api-version=2026-08-01-preview",
+    "is_default": false,
+    "credential_type": "ProjectManagedIdentity",
+    "metadata": {
+      "type": "knowledgeBase_MCP",
+      "knowledgeBaseName": "kb-pizza"
+    }
+  },
+  {
+    "name": "pizza-catalog-mcp",
+    "type": "RemoteTool",
+    "target": "https://pizza-mcp.salmonwater-e074ca76.swedencentral.azurecontainerapps.io/mcp",
+    "is_default": false,
+    "credential_type": "CustomKeys",
+    "metadata": {
+      "type": "custom_MCP"
+    }
+  },
+  {
+    "name": "pizza-orders-mcp",
+    "type": "RemoteTool",
+    "target": "https://pizza-order-mcp.salmonwater-e074ca76.swedencentral.azurecontainerapps.io/mcp",
+    "is_default": true,
+    "credential_type": "CustomKeys",
+    "metadata": {
+      "type": "custom_MCP"
+    }
+  }
+]

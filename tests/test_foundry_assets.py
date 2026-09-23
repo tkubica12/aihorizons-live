@@ -2,6 +2,7 @@ import importlib.util
 import json
 import shutil
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -15,10 +16,16 @@ spec.loader.exec_module(assets)
 def test_exported_snapshot_is_valid_and_keeps_prompts_separate():
     manifest = assets.validate()
     assert len(manifest["agents"]) == len(manifest["datasets"]) == len(manifest["evaluators"]) == 1
+    assert len(manifest["toolboxes"]) == len(manifest["memory_stores"]) == 1
+    assert len(manifest["connections"]) == 6
     agent = assets.ROOT / "agents" / manifest["agents"][0]["name"] / manifest["agents"][0]["version"]
     evaluator = assets.ROOT / "evaluators" / manifest["evaluators"][0]["name"] / manifest["evaluators"][0]["version"]
     assert "instructions" not in assets.load(agent / "definition.json")
     assert "prompt_text" not in assets.load(evaluator / "evaluator.json")["definition"]
+    toolbox = assets.ROOT / "toolboxes" / manifest["toolboxes"][0]["name"] / "1" / "toolbox.json"
+    memory = assets.ROOT / "memory_stores" / manifest["memory_stores"][0]["name"] / "memory_store.json"
+    assert len(assets.load(toolbox)["tools"]) == 3
+    assert assets.load(memory)["definition"]["kind"] == "default"
     rows = (assets.ROOT / "datasets" / "pizza_customers" / "1.0" / "data.jsonl").read_text(
         encoding="utf-8"
     ).splitlines()
@@ -41,3 +48,29 @@ def test_snapshot_refuses_to_replace_local_edits(tmp_path):
     with pytest.raises(FileExistsError):
         assets.snapshot_file(target, b"portal edit", overwrite=False)
     assert target.read_text(encoding="utf-8") == "local edit"
+
+
+def test_connection_inventory_excludes_credentials_and_sensitive_metadata():
+    connection = SimpleNamespace(
+        name="observability",
+        as_dict=lambda: {
+            "type": "AppInsights",
+            "target": "/subscriptions/abc/resourceGroups/demo",
+            "isDefault": True,
+            "credentials": {"type": "ApiKey", "key": "private"},
+            "metadata": {"displayName": "demo", "ApplicationInsightsConnectionString": "private"},
+        },
+    )
+    inventory = assets.connection_inventory(connection)
+    assert inventory["credential_type"] == "ApiKey"
+    assert inventory["metadata"] == {"displayName": "demo"}
+    assert "private" not in json.dumps(inventory)
+
+
+def test_connection_inventory_rejects_secret_in_target():
+    connection = SimpleNamespace(
+        name="unknown",
+        as_dict=lambda: {"type": "RemoteTool", "target": "https://example.com/mcp?token=private"},
+    )
+    with pytest.raises(ValueError, match="possible credentials"):
+        assets.connection_inventory(connection)

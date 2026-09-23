@@ -1,0 +1,33 @@
+{
+  "kind": "prompt",
+  "rai_config": {
+    "rai_policy_name": "/subscriptions/673af34d-6b28-41dc-bc7b-f507418045e6/resourceGroups/RG-AI-Horizons/providers/Microsoft.CognitiveServices/accounts/aihorizons-resource/raiPolicies/Guardrails402"
+  },
+  "model": "gpt-6-sol",
+  "reasoning": {
+    "effort": "low"
+  },
+  "tools": [
+    {
+      "type": "memory_search_preview",
+      "memory_store_name": "pamet-ai-pizza-prodavac",
+      "scope": "{{$userId}}",
+      "update_delay": 30
+    },
+    {
+      "type": "mcp",
+      "server_label": "pizza-catalog-mcp",
+      "server_url": "https://pizza-mcp.salmonwater-e074ca76.swedencentral.azurecontainerapps.io/mcp",
+      "require_approval": "never",
+      "project_connection_id": "pizza-catalog-mcp"
+    },
+    {
+      "type": "mcp",
+      "server_label": "pizza-orders-mcp",
+      "server_url": "https://pizza-order-mcp.salmonwater-e074ca76.swedencentral.azurecontainerapps.io/mcp",
+      "require_approval": "never",
+      "project_connection_id": "pizza-orders-mcp"
+    }
+  ],
+  "instructions_file": "instructions.txt"
+}

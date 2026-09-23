@@ -7,7 +7,9 @@ from pathlib import Path
 import psycopg
 
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(os.environ["PIZZA_DATA_ROOT"]).resolve() if os.environ.get(
+    "PIZZA_DATA_ROOT"
+) else Path(__file__).resolve().parents[2]
 FIXTURE = ROOT / "sample-data" / "catalog.json"
 SCHEMA = ROOT / "database" / "001_catalog.sql"
 

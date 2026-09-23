@@ -13,6 +13,10 @@ The local project uses `uv` and the Microsoft package feed configured in
 `pyproject.toml`. Run `uv sync --extra dev --frozen`; tests are `uv run --frozen
 pytest -q`. The generated MCP tool contract can be refreshed with `uv run
 --frozen python scripts/export_mcp_contract.py`.
+In the container, `PIZZA_DATA_ROOT=/app` points both seed modules at the
+fixture and SQL files copied outside the non-editable Python wheel. Set this
+variable to the directory containing `database/` and `sample-data/` if
+running an installed wheel outside the provided image.
 
 Infrastructure is owned in `infra/` by the Azure infrastructure session.
 For the fictional demo only, the owner approved HorizonDB's broad

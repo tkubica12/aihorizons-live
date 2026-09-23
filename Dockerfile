@@ -9,6 +9,6 @@ COPY sample-data/catalog.json ./sample-data/catalog.json
 COPY sample-data/order-history.json ./sample-data/order-history.json
 RUN uv sync --frozen --no-dev --no-editable
 
-ENV PATH="/app/.venv/bin:$PATH"
+ENV PATH="/app/.venv/bin:$PATH" PIZZA_DATA_ROOT="/app"
 EXPOSE 8000
 CMD ["uvicorn", "pizza_mcp.server:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers"]
